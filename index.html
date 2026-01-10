@@ -1,534 +1,487 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Dashboard</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        
-        // Lucide React icons as simple SVG components
-        const Search = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-        );
-        
-        const MessageSquare = ({ className }) => (
-            <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-        );
-        
-        const CheckCircle = ({ className }) => (
-            <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-        
-        const Clock = ({ className }) => (
-            <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-        );
-        
-        const Send = ({ className }) => (
-            <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-        );
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, UserPlus, MessageSquare, CheckCircle, XCircle, Clock, Send } from 'lucide-react';
 
-        const WhatsAppDashboard = () => {
-          const [chats, setChats] = useState([]);
-          const [selectedChat, setSelectedChat] = useState(null);
-          const [filterStatus, setFilterStatus] = useState('all');
-          const [searchQuery, setSearchQuery] = useState('');
-          const [teamMembers] = useState(['John Doe', 'Jane Smith', 'Mike Wilson', 'Sarah Parker', 'Unassigned']);
-          const [evolutionApiUrl, setEvolutionApiUrl] = useState('');
-          const [apiKey, setApiKey] = useState('');
-          const [instanceName, setInstanceName] = useState('');
-          const [isConfigured, setIsConfigured] = useState(false);
-          const [message, setMessage] = useState('');
+const WhatsAppDashboard = () => {
+  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [teamMembers] = useState(['John Doe', 'Jane Smith', 'Mike Wilson', 'Sarah Parker', 'Unassigned']);
+  const [evolutionApiUrl, setEvolutionApiUrl] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [instanceName, setInstanceName] = useState('');
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [message, setMessage] = useState('');
 
-          useEffect(() => {
-            loadDemoData();
-          }, []);
+  // Load demo data initially
+  useEffect(() => {
+    loadDemoData();
+  }, []);
 
-          const loadDemoData = () => {
-            const demoChats = [
-              {
-                id: 1,
-                name: 'Customer Support',
-                phone: '+1234567890',
-                lastMessage: 'I need help with my order',
-                timestamp: '10:30 AM',
-                status: 'open',
-                assignedTo: 'Unassigned',
-                unreadCount: 3,
-                messages: [
-                  { from: 'customer', text: 'Hello', time: '10:25 AM' },
-                  { from: 'customer', text: 'I need help with my order', time: '10:30 AM' }
-                ]
-              },
-              {
-                id: 2,
-                name: 'Sales Inquiry',
-                phone: '+9876543210',
-                lastMessage: 'What are your pricing plans?',
-                timestamp: '09:15 AM',
-                status: 'open',
-                assignedTo: 'John Doe',
-                unreadCount: 1,
-                messages: [
-                  { from: 'customer', text: 'What are your pricing plans?', time: '09:15 AM' }
-                ]
-              },
-              {
-                id: 3,
-                name: 'Technical Support',
-                phone: '+1122334455',
-                lastMessage: 'Thank you for your help!',
-                timestamp: 'Yesterday',
-                status: 'closed',
-                assignedTo: 'Jane Smith',
-                unreadCount: 0,
-                messages: [
-                  { from: 'customer', text: 'My app is crashing', time: 'Yesterday 2:00 PM' },
-                  { from: 'agent', text: 'Let me help you with that', time: 'Yesterday 2:05 PM' },
-                  { from: 'customer', text: 'Thank you for your help!', time: 'Yesterday 2:30 PM' }
-                ]
-              },
-              {
-                id: 4,
-                name: 'Product Question',
-                phone: '+5566778899',
-                lastMessage: 'Is this product available?',
-                timestamp: '2 hours ago',
-                status: 'open',
-                assignedTo: 'Mike Wilson',
-                unreadCount: 2,
-                messages: [
-                  { from: 'customer', text: 'Is this product available?', time: '2 hours ago' }
-                ]
-              },
-              {
-                id: 5,
-                name: 'Billing Issue',
-                phone: '+6677889900',
-                lastMessage: 'Resolved, thanks!',
-                timestamp: '2 days ago',
-                status: 'closed',
-                assignedTo: 'Sarah Parker',
-                unreadCount: 0,
-                messages: [
-                  { from: 'customer', text: 'I was charged twice', time: '2 days ago' },
-                  { from: 'agent', text: 'Let me check that for you', time: '2 days ago' },
-                  { from: 'customer', text: 'Resolved, thanks!', time: '2 days ago' }
-                ]
-              }
-            ];
-            setChats(demoChats);
-          };
+  const loadDemoData = () => {
+    const demoChats = [
+      {
+        id: 1,
+        name: 'Customer Support',
+        phone: '+1234567890',
+        lastMessage: 'I need help with my order',
+        timestamp: '10:30 AM',
+        status: 'open',
+        assignedTo: 'Unassigned',
+        unreadCount: 3,
+        messages: [
+          { from: 'customer', text: 'Hello', time: '10:25 AM' },
+          { from: 'customer', text: 'I need help with my order', time: '10:30 AM' }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Sales Inquiry',
+        phone: '+9876543210',
+        lastMessage: 'What are your pricing plans?',
+        timestamp: '09:15 AM',
+        status: 'open',
+        assignedTo: 'John Doe',
+        unreadCount: 1,
+        messages: [
+          { from: 'customer', text: 'What are your pricing plans?', time: '09:15 AM' }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Technical Support',
+        phone: '+1122334455',
+        lastMessage: 'Thank you for your help!',
+        timestamp: 'Yesterday',
+        status: 'closed',
+        assignedTo: 'Jane Smith',
+        unreadCount: 0,
+        messages: [
+          { from: 'customer', text: 'My app is crashing', time: 'Yesterday 2:00 PM' },
+          { from: 'agent', text: 'Let me help you with that', time: 'Yesterday 2:05 PM' },
+          { from: 'customer', text: 'Thank you for your help!', time: 'Yesterday 2:30 PM' }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Product Question',
+        phone: '+5566778899',
+        lastMessage: 'Is this product available?',
+        timestamp: '2 hours ago',
+        status: 'open',
+        assignedTo: 'Mike Wilson',
+        unreadCount: 2,
+        messages: [
+          { from: 'customer', text: 'Is this product available?', time: '2 hours ago' }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Billing Issue',
+        phone: '+6677889900',
+        lastMessage: 'Resolved, thanks!',
+        timestamp: '2 days ago',
+        status: 'closed',
+        assignedTo: 'Sarah Parker',
+        unreadCount: 0,
+        messages: [
+          { from: 'customer', text: 'I was charged twice', time: '2 days ago' },
+          { from: 'agent', text: 'Let me check that for you', time: '2 days ago' },
+          { from: 'customer', text: 'Resolved, thanks!', time: '2 days ago' }
+        ]
+      }
+    ];
+    setChats(demoChats);
+  };
 
-          const fetchChatsFromEvolution = async () => {
-            if (!evolutionApiUrl || !apiKey || !instanceName) {
-              alert('Please configure Evolution API settings first');
-              return;
-            }
+  const fetchChatsFromEvolution = async () => {
+    if (!evolutionApiUrl || !apiKey || !instanceName) {
+      alert('Please configure Evolution API settings first');
+      return;
+    }
 
-            try {
-              const response = await fetch(`${evolutionApiUrl}/chat/findMessages/${instanceName}`, {
-                headers: {
-                  'apikey': apiKey,
-                  'Content-Type': 'application/json'
-                }
-              });
+    try {
+      const response = await fetch(`${evolutionApiUrl}/chat/findMessages/${instanceName}`, {
+        headers: {
+          'apikey': apiKey,
+          'Content-Type': 'application/json'
+        }
+      });
 
-              if (response.ok) {
-                const data = await response.json();
-                const transformedChats = data.map((chat, index) => ({
-                  id: index + 1,
-                  name: chat.pushName || chat.remoteJid,
-                  phone: chat.remoteJid,
-                  lastMessage: chat.lastMessage?.message || 'No messages',
-                  timestamp: new Date(chat.messageTimestamp * 1000).toLocaleString(),
-                  status: 'open',
-                  assignedTo: 'Unassigned',
-                  unreadCount: 0,
-                  messages: []
-                }));
-                setChats(transformedChats);
-              } else {
-                alert('Failed to fetch chats from Evolution API');
-              }
-            } catch (error) {
-              alert('Error connecting to Evolution API: ' + error.message);
-            }
-          };
+      if (response.ok) {
+        const data = await response.json();
+        // Transform Evolution API data to our format
+        const transformedChats = data.map((chat, index) => ({
+          id: index + 1,
+          name: chat.pushName || chat.remoteJid,
+          phone: chat.remoteJid,
+          lastMessage: chat.lastMessage?.message || 'No messages',
+          timestamp: new Date(chat.messageTimestamp * 1000).toLocaleString(),
+          status: 'open',
+          assignedTo: 'Unassigned',
+          unreadCount: 0,
+          messages: []
+        }));
+        setChats(transformedChats);
+      } else {
+        alert('Failed to fetch chats from Evolution API');
+      }
+    } catch (error) {
+      alert('Error connecting to Evolution API: ' + error.message);
+    }
+  };
 
-          const filteredChats = chats.filter(chat => {
-            const matchesSearch = chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                 chat.phone.includes(searchQuery);
-            const matchesFilter = filterStatus === 'all' || chat.status === filterStatus;
-            return matchesSearch && matchesFilter;
-          });
+  const filteredChats = chats.filter(chat => {
+    const matchesSearch = chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         chat.phone.includes(searchQuery);
+    const matchesFilter = filterStatus === 'all' || chat.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
 
-          const updateChatStatus = (chatId, newStatus) => {
-            setChats(chats.map(chat => 
-              chat.id === chatId ? { ...chat, status: newStatus } : chat
-            ));
-          };
+  const updateChatStatus = (chatId, newStatus) => {
+    setChats(chats.map(chat => 
+      chat.id === chatId ? { ...chat, status: newStatus } : chat
+    ));
+  };
 
-          const assignToTeamMember = (chatId, member) => {
-            setChats(chats.map(chat => 
-              chat.id === chatId ? { ...chat, assignedTo: member } : chat
-            ));
-          };
+  const assignToTeamMember = (chatId, member) => {
+    setChats(chats.map(chat => 
+      chat.id === chatId ? { ...chat, assignedTo: member } : chat
+    ));
+  };
 
-          const sendMessage = () => {
-            if (!message.trim() || !selectedChat) return;
+  const sendMessage = () => {
+    if (!message.trim() || !selectedChat) return;
 
-            const newMessage = {
-              from: 'agent',
-              text: message,
-              time: new Date().toLocaleTimeString()
-            };
+    const newMessage = {
+      from: 'agent',
+      text: message,
+      time: new Date().toLocaleTimeString()
+    };
 
-            setChats(chats.map(chat => {
-              if (chat.id === selectedChat.id) {
-                return {
-                  ...chat,
-                  messages: [...chat.messages, newMessage],
-                  lastMessage: message,
-                  timestamp: 'Just now'
-                };
-              }
-              return chat;
-            }));
+    setChats(chats.map(chat => {
+      if (chat.id === selectedChat.id) {
+        return {
+          ...chat,
+          messages: [...chat.messages, newMessage],
+          lastMessage: message,
+          timestamp: 'Just now'
+        };
+      }
+      return chat;
+    }));
 
-            setSelectedChat({
-              ...selectedChat,
-              messages: [...selectedChat.messages, newMessage]
-            });
+    setSelectedChat({
+      ...selectedChat,
+      messages: [...selectedChat.messages, newMessage]
+    });
 
-            setMessage('');
-          };
+    setMessage('');
+  };
 
-          const getStatusColor = (status) => {
-            switch(status) {
-              case 'open': return 'bg-green-100 text-green-800';
-              case 'closed': return 'bg-gray-100 text-gray-800';
-              default: return 'bg-blue-100 text-blue-800';
-            }
-          };
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'open': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-blue-100 text-blue-800';
+    }
+  };
 
-          const getStatusIcon = (status) => {
-            switch(status) {
-              case 'open': return <MessageSquare className="w-4 h-4" />;
-              case 'closed': return <CheckCircle className="w-4 h-4" />;
-              default: return <Clock className="w-4 h-4" />;
-            }
-          };
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'open': return <MessageSquare className="w-4 h-4" />;
+      case 'closed': return <CheckCircle className="w-4 h-4" />;
+      default: return <Clock className="w-4 h-4" />;
+    }
+  };
 
-          const stats = {
-            total: chats.length,
-            open: chats.filter(c => c.status === 'open').length,
-            closed: chats.filter(c => c.status === 'closed').length,
-            unassigned: chats.filter(c => c.assignedTo === 'Unassigned').length
-          };
+  const stats = {
+    total: chats.length,
+    open: chats.filter(c => c.status === 'open').length,
+    closed: chats.filter(c => c.status === 'closed').length,
+    unassigned: chats.filter(c => c.assignedTo === 'Unassigned').length
+  };
 
-          if (!isConfigured) {
-            return (
-              <div className="min-h-screen bg-gray-50 p-8">
-                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
-                  <h1 className="text-3xl font-bold text-gray-800 mb-6">Configure Evolution API</h1>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Evolution API URL
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="https://your-evolution-api.com"
-                        value={evolutionApiUrl}
-                        onChange={(e) => setEvolutionApiUrl(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      />
-                    </div>
+  if (!isConfigured) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Configure Evolution API</h1>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Evolution API URL
+              </label>
+              <input
+                type="text"
+                placeholder="https://your-evolution-api.com"
+                value={evolutionApiUrl}
+                onChange={(e) => setEvolutionApiUrl(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        API Key
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="Your API Key"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      />
-                    </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                API Key
+              </label>
+              <input
+                type="password"
+                placeholder="Your API Key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Instance Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="your-instance-name"
-                        value={instanceName}
-                        onChange={(e) => setInstanceName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      />
-                    </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Instance Name
+              </label>
+              <input
+                type="text"
+                placeholder="your-instance-name"
+                value={instanceName}
+                onChange={(e) => setInstanceName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
 
-                    <div className="flex gap-4 pt-4">
-                      <button
-                        onClick={() => {
-                          setIsConfigured(true);
-                          fetchChatsFromEvolution();
-                        }}
-                        className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
-                      >
-                        Connect to Evolution API
-                      </button>
-                      
-                      <button
-                        onClick={() => {
-                          setIsConfigured(true);
-                          loadDemoData();
-                        }}
-                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                      >
-                        Use Demo Data
-                      </button>
-                    </div>
+            <div className="flex gap-4 pt-4">
+              <button
+                onClick={() => {
+                  setIsConfigured(true);
+                  fetchChatsFromEvolution();
+                }}
+                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                Connect to Evolution API
+              </button>
+              
+              <button
+                onClick={() => {
+                  setIsConfigured(true);
+                  loadDemoData();
+                }}
+                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Use Demo Data
+              </button>
+            </div>
 
-                    <p className="text-sm text-gray-500 text-center mt-4">
-                      You can skip configuration and use demo data to test the interface
-                    </p>
+            <p className="text-sm text-gray-500 text-center mt-4">
+              You can skip configuration and use demo data to test the interface
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-800">WhatsApp Chat Management</h1>
+          <button
+            onClick={() => setIsConfigured(false)}
+            className="text-sm text-gray-600 hover:text-gray-800"
+          >
+            ⚙️ Settings
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-4 gap-4 mt-4">
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            <div className="text-sm text-blue-800">Total Chats</div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="text-2xl font-bold text-green-600">{stats.open}</div>
+            <div className="text-sm text-green-800">Open</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-2xl font-bold text-gray-600">{stats.closed}</div>
+            <div className="text-sm text-gray-800">Closed</div>
+          </div>
+          <div className="bg-orange-50 rounded-lg p-4">
+            <div className="text-2xl font-bold text-orange-600">{stats.unassigned}</div>
+            <div className="text-sm text-orange-800">Unassigned</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex h-[calc(100vh-180px)]">
+        {/* Sidebar - Chat List */}
+        <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
+          {/* Search and Filters */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'all' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilterStatus('open')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'open' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Open
+              </button>
+              <button
+                onClick={() => setFilterStatus('closed')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'closed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Closed
+              </button>
+            </div>
+          </div>
+
+          {/* Chat List */}
+          <div className="flex-1 overflow-y-auto">
+            {filteredChats.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => setSelectedChat(chat)}
+                className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  selectedChat?.id === chat.id ? 'bg-green-50' : ''
+                }`}
+              >
+                <div className="flex items-start justify-between mb-1">
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800">{chat.name}</div>
+                    <div className="text-xs text-gray-500">{chat.phone}</div>
                   </div>
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <div className="min-h-screen bg-gray-50">
-              <div className="bg-white border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold text-gray-800">WhatsApp Chat Management</h1>
-                  <button
-                    onClick={() => setIsConfigured(false)}
-                    className="text-sm text-gray-600 hover:text-gray-800"
-                  >
-                    ⚙️ Settings
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                    <div className="text-sm text-blue-800">Total Chats</div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-green-600">{stats.open}</div>
-                    <div className="text-sm text-green-800">Open</div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-gray-600">{stats.closed}</div>
-                    <div className="text-sm text-gray-800">Closed</div>
-                  </div>
-                  <div className="bg-orange-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-orange-600">{stats.unassigned}</div>
-                    <div className="text-sm text-orange-800">Unassigned</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex h-[calc(100vh-180px)]">
-                <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="relative mb-3">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                        <Search />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Search chats..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setFilterStatus('all')}
-                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          filterStatus === 'all' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        All
-                      </button>
-                      <button
-                        onClick={() => setFilterStatus('open')}
-                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          filterStatus === 'open' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        Open
-                      </button>
-                      <button
-                        onClick={() => setFilterStatus('closed')}
-                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          filterStatus === 'closed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        Closed
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto">
-                    {filteredChats.map((chat) => (
-                      <div
-                        key={chat.id}
-                        onClick={() => setSelectedChat(chat)}
-                        className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
-                          selectedChat?.id === chat.id ? 'bg-green-50' : ''
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-800">{chat.name}</div>
-                            <div className="text-xs text-gray-500">{chat.phone}</div>
-                          </div>
-                          {chat.unreadCount > 0 && (
-                            <span className="bg-green-600 text-white text-xs rounded-full px-2 py-1">
-                              {chat.unreadCount}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600 truncate mb-2">{chat.lastMessage}</div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">{chat.timestamp}</span>
-                          <span className={`px-2 py-1 rounded-full flex items-center gap-1 ${getStatusColor(chat.status)}`}>
-                            {getStatusIcon(chat.status)}
-                            {chat.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex-1 flex flex-col bg-gray-50">
-                  {selectedChat ? (
-                    <>
-                      <div className="bg-white border-b border-gray-200 px-6 py-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h2 className="text-lg font-semibold text-gray-800">{selectedChat.name}</h2>
-                            <p className="text-sm text-gray-500">{selectedChat.phone}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <select
-                              value={selectedChat.assignedTo}
-                              onChange={(e) => assignToTeamMember(selectedChat.id, e.target.value)}
-                              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                            >
-                              {teamMembers.map(member => (
-                                <option key={member} value={member}>{member}</option>
-                              ))}
-                            </select>
-                            <button
-                              onClick={() => updateChatStatus(selectedChat.id, selectedChat.status === 'open' ? 'closed' : 'open')}
-                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                selectedChat.status === 'open'
-                                  ? 'bg-gray-600 text-white hover:bg-gray-700'
-                                  : 'bg-green-600 text-white hover:bg-green-700'
-                              }`}
-                            >
-                              {selectedChat.status === 'open' ? 'Close Chat' : 'Reopen Chat'}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                        {selectedChat.messages.map((msg, idx) => (
-                          <div
-                            key={idx}
-                            className={`flex ${msg.from === 'agent' ? 'justify-end' : 'justify-start'}`}
-                          >
-                            <div
-                              className={`max-w-md px-4 py-2 rounded-lg ${
-                                msg.from === 'agent'
-                                  ? 'bg-green-600 text-white'
-                                  : 'bg-white text-gray-800 border border-gray-200'
-                              }`}
-                            >
-                              <p>{msg.text}</p>
-                              <p className={`text-xs mt-1 ${msg.from === 'agent' ? 'text-green-100' : 'text-gray-500'}`}>
-                                {msg.time}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="bg-white border-t border-gray-200 px-6 py-4">
-                        <div className="flex gap-3">
-                          <input
-                            type="text"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                            placeholder="Type a message..."
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          />
-                          <button
-                            onClick={sendMessage}
-                            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                          >
-                            <Send className="w-4 h-4" />
-                            Send
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center text-gray-500">
-                      <div className="text-center">
-                        <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                        <p className="text-lg">Select a chat to start messaging</p>
-                      </div>
-                    </div>
+                  {chat.unreadCount > 0 && (
+                    <span className="bg-green-600 text-white text-xs rounded-full px-2 py-1">
+                      {chat.unreadCount}
+                    </span>
                   )}
                 </div>
+                <div className="text-sm text-gray-600 truncate mb-2">{chat.lastMessage}</div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-500">{chat.timestamp}</span>
+                  <span className={`px-2 py-1 rounded-full flex items-center gap-1 ${getStatusColor(chat.status)}`}>
+                    {getStatusIcon(chat.status)}
+                    {chat.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col bg-gray-50">
+          {selectedChat ? (
+            <>
+              {/* Chat Header */}
+              <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-800">{selectedChat.name}</h2>
+                    <p className="text-sm text-gray-500">{selectedChat.phone}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <select
+                      value={selectedChat.assignedTo}
+                      onChange={(e) => assignToTeamMember(selectedChat.id, e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                    >
+                      {teamMembers.map(member => (
+                        <option key={member} value={member}>{member}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => updateChatStatus(selectedChat.id, selectedChat.status === 'open' ? 'closed' : 'open')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedChat.status === 'open'
+                          ? 'bg-gray-600 text-white hover:bg-gray-700'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      {selectedChat.status === 'open' ? 'Close Chat' : 'Reopen Chat'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {selectedChat.messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${msg.from === 'agent' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-md px-4 py-2 rounded-lg ${
+                        msg.from === 'agent'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-white text-gray-800 border border-gray-200'
+                      }`}
+                    >
+                      <p>{msg.text}</p>
+                      <p className={`text-xs mt-1 ${msg.from === 'agent' ? 'text-green-100' : 'text-gray-500'}`}>
+                        {msg.time}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message Input */}
+              <div className="bg-white border-t border-gray-200 px-6 py-4">
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    placeholder="Type a message..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <button
+                    onClick={sendMessage}
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    Send
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                <p className="text-lg">Select a chat to start messaging</p>
               </div>
             </div>
-          );
-        };
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        ReactDOM.render(<WhatsAppDashboard />, document.getElementById('root'));
-    </script>
-</body>
-</html>
